@@ -14,17 +14,26 @@ locationsRouter.get(
     res.json({ success: true, data });
   })
 );
+
 locationsRouter.get(
   "/pincode/:pincode",
   asyncHandler(async (req, res) => {
     const pin = req.params.pincode;
-    if (!/^[1-9]\d{5}$/.test(pin)) throw new HttpError(400, "Invalid PIN code");
+
+    if (typeof pin !== "string" || !/^[1-9]\d{5}$/.test(pin)) {
+      throw new HttpError(400, "Invalid PIN code");
+    }
+
     const { data, error } = await supabase
       .from("pincode_directory")
       .select("*")
       .eq("pincode", pin)
       .maybeSingle();
-    if (error) throw new HttpError(500, "Unable to look up PIN code");
+
+    if (error) {
+      throw new HttpError(500, "Unable to look up PIN code");
+    }
+
     res.json({ success: true, data });
   })
 );
